@@ -8,7 +8,10 @@ typedef int16_t i16;
 typedef int8_t i8;
 typedef intptr_t isize;
 typedef uintptr_t usize;
+typedef isize bool;
 
+#define true 1
+#define false 0
 #define MAX(x, y) ((x) >= (y) ? (x) : (y))
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define IS_POW2(x) (((x) != 0) && ((x) & ((x)-1)) == 0)

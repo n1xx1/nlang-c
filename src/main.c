@@ -13,19 +13,20 @@
 #include <stdlib.h>
 
 #include "lib/lib.c"
+#include "parser/parser.c"
 
 void main_compile_file(const char* name, StrRange file) {
-    
+	
 }
 
 int main(int argc, const char* argv[]) {
-    if(argc != 3) {
-        printf("Usage: nc <file.nl> <out.c>\n");
-        return 1;
-    }
+	if(argc != 3) {
+		printf("Usage: nc <file.nl> <out.c>\n");
+		return 1;
+	}
 
-    StrRange contents = read_file(argv[1]);
-    main_compile_file(argv[1], contents);
-    return 0;
+	StrRange contents = read_file(argv[1]);
+	main_compile_file(argv[1], contents);
+	return 0;
 }
 
