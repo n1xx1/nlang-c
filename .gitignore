@@ -1,2 +1,7 @@
-build/
-.vs_code/
+build/*
+!build/.gitkeep
+
+bin/*
+!bin/.gitkeep
+
+.vscode/
