@@ -1,7 +1,7 @@
 // Copyright 2018 Simone Miraglia. See the LICENSE
 // file at the top-level directory of this distribution
 
-void *xcalloc(isize num_elems, isize elem_size) {
+void* xcalloc(isize num_elems, isize elem_size) {
 	void* ptr = calloc(num_elems, elem_size);
 	if (!ptr) {
 		perror("xcalloc failed");
@@ -10,7 +10,7 @@ void *xcalloc(isize num_elems, isize elem_size) {
 	return ptr;
 }
 
-void *xrealloc(void* ptr, isize num_bytes) {
+void* xrealloc(void* ptr, isize num_bytes) {
 	ptr = realloc(ptr, num_bytes);
 	if (!ptr) {
 		perror("xrealloc failed");
@@ -19,8 +19,8 @@ void *xrealloc(void* ptr, isize num_bytes) {
 	return ptr;
 }
 
-void *xmalloc(isize num_bytes) {
-	void *ptr = malloc(num_bytes);
+void* xmalloc(isize num_bytes) {
+	void* ptr = malloc(num_bytes);
 	if (!ptr) {
 		perror("xmalloc failed");
 		exit(1);
@@ -28,7 +28,7 @@ void *xmalloc(isize num_bytes) {
 	return ptr;
 }
 
-void *memdup(const void* src, isize size) {
+void* memdup(const void* src, isize size) {
 	void* dest = xmalloc(size);
 	memcpy(dest, src, size);
 	return dest;
