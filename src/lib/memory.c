@@ -1,3 +1,5 @@
+// Copyright 2018 Simone Miraglia. See the LICENSE
+// file at the top-level directory of this distribution
 
 void *xcalloc(isize num_elems, isize elem_size) {
 	void* ptr = calloc(num_elems, elem_size);

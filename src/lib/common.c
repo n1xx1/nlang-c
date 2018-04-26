@@ -1,3 +1,6 @@
+// Copyright 2018 Simone Miraglia. See the LICENSE
+// file at the top-level directory of this distribution
+
 typedef uint64_t u64;
 typedef uint32_t u32;
 typedef uint16_t u16;

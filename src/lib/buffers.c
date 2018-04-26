@@ -1,3 +1,5 @@
+// Copyright 2018 Simone Miraglia. See the LICENSE
+// file at the top-level directory of this distribution
 
 #define buf__raw(b) ((isize*)(b) - 2)
 #define buf__cap(b) buf__raw(b)[0]

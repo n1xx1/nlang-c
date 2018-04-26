@@ -1,6 +1,5 @@
-// Copyright 2018 Simone Miraglia. See the COPYRIGHT
+// Copyright 2018 Simone Miraglia. See the LICENSE
 // file at the top-level directory of this distribution
-
 
 // include all the headers we will use across the project
 #include <ctype.h>
