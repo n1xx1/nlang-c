@@ -15,7 +15,15 @@
 #include "parser/parser.c"
 
 void main_compile_file(const char* name, StrRange file) {
-	
+	Lexer l;
+	lexer_init(&l, name, file);
+
+	while(true) {
+		lexer_lex(&l);
+		printf("[%2d:%-2d]  %s\n", l.token.line, l.token.col, ttos(l.token));
+		if(l.token.tok == T_EOF)
+			break;
+	}
 }
 
 int main(int argc, const char* argv[]) {
