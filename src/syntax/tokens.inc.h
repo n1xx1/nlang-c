@@ -8,6 +8,7 @@
 #define TOKEN_KW(n, v) TOKEN(n, v)
 #endif
 
+TOKEN(T_UNKNOWN, "unknown")
 TOKEN(T_EOF, "eof")
 
 TOKEN(T_IDENT, "ident")
@@ -90,8 +91,6 @@ TOKEN_KW(T_STRUCT, "struct")
 TOKEN_KW(T_EXTERN, "extern")
 TOKEN_KW(T_RETURN, "return")
 TOKEN_KW(T_CONTINUE, "continue")
-
-TOKEN(TOKEN_MAX, "")
 
 #undef TOKEN 
 #undef TOKEN_OP

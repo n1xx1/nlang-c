@@ -2,21 +2,22 @@
 // file at the top-level directory of this distribution
 
 typedef enum TokenKind {
-	T_UNKNOWN,
 	#define TOKEN(n, v) n,
 	#include "tokens.inc.h"
+	TOKEN_MAX
 } TokenKind;
 
 const char* token_kind_names[] = {
 	#define TOKEN(n, v) [n] = v,
 	#include "tokens.inc.h"
-	[T_UNKNOWN] = "unknown"
+	[TOKEN_MAX] = ""
 };
 
 int token_operator_prec[] = {
 	#define TOKEN_OP(n, v, p) [n] = p,
 	#include "tokens.inc.h"
-	[T_AS] = 3
+	[T_AS] = 3,
+	[TOKEN_MAX] = 0
 };
 
 typedef struct Token {
