@@ -7,16 +7,7 @@
 #include "buffers.c"
 #include "pool.c"
 #include "strings.c"
-
-void fatal(const char* fmt, ...) {
-	va_list args;
-	va_start(args, fmt);
-	printf("FATAL: ");
-	vprintf(fmt, args);
-	printf("\n");
-	va_end(args);
-	exit(1);
-}
+#include "error.c"
 
 StrRange read_file(const char* name) {
 	char* contents_str = NULL;

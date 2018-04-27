@@ -12,7 +12,6 @@ typedef struct FileLoc {
 	i32 col;
 } FileLoc;
 
-typedef const char* StrIntern;
 
 StrRange string_range_c(const char* s) {
 	return (StrRange){ s, strlen(s) };
@@ -40,4 +39,26 @@ char *strf(const char* fmt, ...) {
 	vsnprintf(str, n, fmt, args);
 	va_end(args);
 	return str;
+}
+
+typedef const char* StrIntern;
+
+MemoryPool str_intern_pool;
+StrRange* str_intern_list;
+
+StrIntern str_intern(StrRange str) {
+    for(isize i = 0; i < buf_len(str_intern_list); i++) {
+        if(str_intern_list[i].l == str.l && strncmp(str_intern_list[i].s, str.s, str.l) == 0) {
+            return str_intern_list[i].s;
+        }
+    }
+    char *s = mpool_alloc(&str_intern_pool, str.l + 1);
+    memcpy(s, str.s, str.l);
+    s[str.l] = 0;
+    buf_push(str_intern_list, string_range_len(s, str.l));
+    return s;
+}
+
+StrIntern str_intern_c(const char *str) {
+    return str_intern(string_range_c(str));
 }

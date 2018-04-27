@@ -1,7 +1,6 @@
 // Copyright 2018 Simone Miraglia. See the LICENSE
 // file at the top-level directory of this distribution
 
-// include all the headers we will use across the project
 #include <ctype.h>
 #include <inttypes.h>
 #include <stddef.h>
@@ -16,15 +15,10 @@
 #include "print/print.c"
 
 void main_compile_file(const char* name, StrRange file) {
-	Lexer l;
-	lexer_init(&l, name, file);
+	Parser p;
+	parser_init(&p, name, file);
 
-	while(true) {
-		lexer_lex(&l);
-		printf("[%2d:%-2d]  %s\n", l.token.line, l.token.col, ttos(l.token));
-		if(l.token.tok == T_EOF)
-			break;
-	}
+	parser_parse_file(&p);
 }
 
 int main(int argc, const char* argv[]) {

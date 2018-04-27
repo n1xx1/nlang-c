@@ -4,4 +4,4 @@
 #include "token.c"
 #include "ast.c"
 #include "lexer.c"
-
+#include "parser.c"
