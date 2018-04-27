@@ -19,7 +19,7 @@ void main_compile_file(const char* name, StrRange contents) {
 	parser_init(&p, name, contents);
 
 	AstFile* file = parser_parse_file(&p);
-	print_ast_file(file);
+	puts(string_ast_file(file));
 }
 
 int main(int argc, const char* argv[]) {
