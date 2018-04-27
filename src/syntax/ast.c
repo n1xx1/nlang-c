@@ -231,292 +231,292 @@ typedef struct AstFile {
 
 MemoryPool ast_pool;
 
-void* ast_alloc(size_t size) {
-    assert(size != 0);
-    void *ptr = mpool_alloc(&ast_pool, size);
-    memset(ptr, 0, size);
-    return ptr;
+void* ast_alloc(isize size) {
+	assert(size != 0);
+	void *ptr = mpool_alloc(&ast_pool, size);
+	memset(ptr, 0, size);
+	return ptr;
 }
-void* ast_dup(void* src, size_t size) {
-    void* dst = ast_alloc(size);
-    memcpy(dst, src, size);
-    return dst;
+void* ast_dup(void* src, isize size) {
+	void* dst = ast_alloc(size);
+	memcpy(dst, src, size);
+	return dst;
 }
 
 AstArg* ast_arg_new(StrIntern name, AstExpr* expr) {
-    AstArg* arg = ast_alloc(sizeof(AstArg));
-    arg->name = name;
-    arg->expr = expr;
-    return arg;
+	AstArg* arg = ast_alloc(sizeof(AstArg));
+	arg->name = name;
+	arg->expr = expr;
+	return arg;
 }
 
 AstParam* ast_param_new(StrIntern name, AstType* type) {
-    AstParam* arg = ast_alloc(sizeof(AstParam));
-    arg->name = name;
-    arg->type = type;
-    return arg;
+	AstParam* arg = ast_alloc(sizeof(AstParam));
+	arg->name = name;
+	arg->type = type;
+	return arg;
 }
 
 AstStmtList ast_stmt_list(AstStmt** buf) {
-    size_t len = buf_len(buf);
-    AstStmt** stmts = buf ? ast_dup(buf, len * sizeof(*buf)) : NULL;
-    buf_free(buf);
-    return (AstStmtList){stmts, len};
+	size_t len = buf_len(buf);
+	AstStmt** stmts = buf ? ast_dup(buf, len * sizeof(*buf)) : NULL;
+	buf_free(buf);
+	return (AstStmtList){stmts, len};
 }
 AstParamList ast_param_list(AstParam** buf) {
-    size_t len = buf_len(buf);
-    AstParam** params = buf ? ast_dup(buf, len * sizeof(*buf)) : NULL;
-    buf_free(buf);
-    return (AstParamList){params, len};
+	size_t len = buf_len(buf);
+	AstParam** params = buf ? ast_dup(buf, len * sizeof(*buf)) : NULL;
+	buf_free(buf);
+	return (AstParamList){params, len};
 }
 AstArgList ast_arg_list(AstArg** buf) {
-    size_t len = buf_len(buf);
-    AstArg** args = buf ? ast_dup(buf, len * sizeof(*buf)) : NULL;
-    buf_free(buf);
-    return (AstArgList){args, len};
+	size_t len = buf_len(buf);
+	AstArg** args = buf ? ast_dup(buf, len * sizeof(*buf)) : NULL;
+	buf_free(buf);
+	return (AstArgList){args, len};
 }
 AstExprList ast_expr_list(AstExpr** buf) {
-    size_t len = buf_len(buf);
-    AstExpr** exprs = buf ? ast_dup(buf, len * sizeof(*buf)) : NULL;
-    buf_free(buf);
-    return (AstExprList){exprs, len};
+	size_t len = buf_len(buf);
+	AstExpr** exprs = buf ? ast_dup(buf, len * sizeof(*buf)) : NULL;
+	buf_free(buf);
+	return (AstExprList){exprs, len};
 }
 AstTypeList ast_type_list(AstType** buf) {
-    size_t len = buf_len(buf);
-    AstType** types = buf ? ast_dup(buf, len * sizeof(*buf)) : NULL;
-    buf_free(buf);
-    return (AstTypeList){types, len};
+	size_t len = buf_len(buf);
+	AstType** types = buf ? ast_dup(buf, len * sizeof(*buf)) : NULL;
+	buf_free(buf);
+	return (AstTypeList){types, len};
 }
 AstDeclList ast_decl_list(AstDecl** buf) {
-    size_t len = buf_len(buf);
-    AstDecl** decls = buf ? ast_dup(buf, len * sizeof(*buf)) : NULL;
-    buf_free(buf);
-    return (AstDeclList){decls, len};
+	size_t len = buf_len(buf);
+	AstDecl** decls = buf ? ast_dup(buf, len * sizeof(*buf)) : NULL;
+	buf_free(buf);
+	return (AstDeclList){decls, len};
 }
 
 AstDecl* ast_decl_new(FileLoc loc, AstDeclKind kind, StrIntern name) {
-    AstDecl* decl = ast_alloc(sizeof(AstDecl));
-    decl->loc = loc;
-    decl->kind = kind;
-    decl->name = name;
-    return decl;
+	AstDecl* decl = ast_alloc(sizeof(AstDecl));
+	decl->loc = loc;
+	decl->kind = kind;
+	decl->name = name;
+	return decl;
 }
 
-AstDecl* ast_decl_let(FileLoc loc, StrIntern name, AstExpr* value, AstType* type, int is_extern) {
-    AstDecl* decl = ast_decl_new(loc, AST_DECL_LET, name);
-    decl->let.value = value;
-    decl->let.type = type;
-    decl->let.is_extern = is_extern;
-    return decl;
+AstDecl* ast_decl_let(FileLoc loc, StrIntern name, AstExpr* value, AstType* type, bool is_extern) {
+	AstDecl* decl = ast_decl_new(loc, AST_DECL_LET, name);
+	decl->let.value = value;
+	decl->let.type = type;
+	decl->let.is_extern = is_extern;
+	return decl;
 }
 AstDecl* ast_decl_const(FileLoc loc, StrIntern name, AstExpr* value) {
-    AstDecl* decl = ast_decl_new(loc, AST_DECL_CONST, name);
-    decl->const_.value = value;
-    return decl;
+	AstDecl* decl = ast_decl_new(loc, AST_DECL_CONST, name);
+	decl->const_.value = value;
+	return decl;
 }
-AstDecl* ast_decl_fn(FileLoc loc, StrIntern name, int is_extern, AstParamList params, AstType* ret, AstStmtList body) {
-    AstDecl* decl = ast_decl_new(loc, AST_DECL_FN, name);
-    decl->fn.is_extern = is_extern;
-    decl->fn.params = params;
-    decl->fn.ret = ret;
-    decl->fn.body = body;
-    return decl;
+AstDecl* ast_decl_fn(FileLoc loc, StrIntern name, bool is_extern, AstParamList params, AstType* ret, AstStmtList body) {
+	AstDecl* decl = ast_decl_new(loc, AST_DECL_FN, name);
+	decl->fn.is_extern = is_extern;
+	decl->fn.params = params;
+	decl->fn.ret = ret;
+	decl->fn.body = body;
+	return decl;
 }
 AstDecl* ast_decl_enum(FileLoc loc, StrIntern name, AstParamList params) {
-    AstDecl* decl = ast_decl_new(loc, AST_DECL_ENUM, name);
-    decl->enum_.params = params;
-    return decl;
+	AstDecl* decl = ast_decl_new(loc, AST_DECL_ENUM, name);
+	decl->enum_.params = params;
+	return decl;
 }
 AstDecl* ast_decl_struct(FileLoc loc, StrIntern name, AstParamList params) {
-    AstDecl* decl = ast_decl_new(loc, AST_DECL_STRUCT, name);
-    decl->struct_.params = params;
-    return decl;
+	AstDecl* decl = ast_decl_new(loc, AST_DECL_STRUCT, name);
+	decl->struct_.params = params;
+	return decl;
 }
 AstDecl* ast_decl_type(FileLoc loc, StrIntern name, AstType* type) {
-    AstDecl* decl = ast_decl_new(loc, AST_DECL_TYPE, name);
-    decl->type.type = type;
-    return decl;
+	AstDecl* decl = ast_decl_new(loc, AST_DECL_TYPE, name);
+	decl->type.type = type;
+	return decl;
 }
 
 AstExpr* ast_expr_new(FileLoc loc, AstExprKind kind) {
-    AstExpr* expr = ast_alloc(sizeof(AstExpr));
-    expr->loc = loc;
-    expr->kind = kind;
-    return expr;
+	AstExpr* expr = ast_alloc(sizeof(AstExpr));
+	expr->loc = loc;
+	expr->kind = kind;
+	return expr;
 }
 AstExpr* ast_expr_lit_int(FileLoc loc, u64 lit) {
-    AstExpr* expr = ast_expr_new(loc, AST_EXPR_LIT_INT);
-    expr->lit_int = lit;
-    return expr;
+	AstExpr* expr = ast_expr_new(loc, AST_EXPR_LIT_INT);
+	expr->lit_int = lit;
+	return expr;
 }
 AstExpr* ast_expr_lit_float(FileLoc loc, double lit) {
-    AstExpr* expr = ast_expr_new(loc, AST_EXPR_LIT_FLOAT);
-    expr->lit_float = lit;
-    return expr;
+	AstExpr* expr = ast_expr_new(loc, AST_EXPR_LIT_FLOAT);
+	expr->lit_float = lit;
+	return expr;
 }
 AstExpr* ast_expr_lit_string(FileLoc loc, StrRange lit) {
-    AstExpr* expr = ast_expr_new(loc, AST_EXPR_LIT_STRING);
-    expr->lit_string = lit;
-    return expr;
+	AstExpr* expr = ast_expr_new(loc, AST_EXPR_LIT_STRING);
+	expr->lit_string = lit;
+	return expr;
 }
 AstExpr* ast_expr_lit_char(FileLoc loc, i32 lit) {
-    AstExpr* expr = ast_expr_new(loc, AST_EXPR_LIT_CHAR);
-    expr->lit_char = lit;
-    return expr;    
+	AstExpr* expr = ast_expr_new(loc, AST_EXPR_LIT_CHAR);
+	expr->lit_char = lit;
+	return expr;    
 }
 AstExpr* ast_expr_ident(FileLoc loc, StrIntern ident) {
-    AstExpr* expr = ast_expr_new(loc, AST_EXPR_IDENT);
-    expr->ident = ident;
-    return expr;
+	AstExpr* expr = ast_expr_new(loc, AST_EXPR_IDENT);
+	expr->ident = ident;
+	return expr;
 }
 AstExpr* ast_expr_member(FileLoc loc, AstExpr* x, StrIntern name) {
-    AstExpr* expr = ast_expr_new(loc, AST_EXPR_MEMBER);
-    expr->member.x = x;
-    expr->member.name = name;
-    return expr;
+	AstExpr* expr = ast_expr_new(loc, AST_EXPR_MEMBER);
+	expr->member.x = x;
+	expr->member.name = name;
+	return expr;
 }
 AstExpr* ast_expr_call(FileLoc loc, AstExpr* x, AstExprList args) {
-    AstExpr* expr = ast_expr_new(loc, AST_EXPR_CALL);
-    expr->call.x = x;
-    expr->call.args = args;
-    return expr;
+	AstExpr* expr = ast_expr_new(loc, AST_EXPR_CALL);
+	expr->call.x = x;
+	expr->call.args = args;
+	return expr;
 }
 AstExpr* ast_expr_unary(FileLoc loc, AstExpr* x, TokenKind op) {
-    AstExpr* expr = ast_expr_new(loc, AST_EXPR_UNARY);
-    expr->unary.x = x;
-    expr->unary.op = op;
-    return expr;
+	AstExpr* expr = ast_expr_new(loc, AST_EXPR_UNARY);
+	expr->unary.x = x;
+	expr->unary.op = op;
+	return expr;
 }
 AstExpr* ast_expr_binary(FileLoc loc, AstExpr* x, TokenKind op, AstExpr* y) {
-    AstExpr* expr = ast_expr_new(loc, AST_EXPR_BINARY);
-    expr->binary.x = x;
-    expr->binary.op = op;
-    expr->binary.y = y;
-    return expr;
+	AstExpr* expr = ast_expr_new(loc, AST_EXPR_BINARY);
+	expr->binary.x = x;
+	expr->binary.op = op;
+	expr->binary.y = y;
+	return expr;
 }
 AstExpr* ast_expr_cast(FileLoc loc, AstExpr* x, AstType* type) {
-    AstExpr* expr = ast_expr_new(loc, AST_EXPR_CAST);
-    expr->cast.x = x;
-    expr->cast.type = type;
-    return expr;
+	AstExpr* expr = ast_expr_new(loc, AST_EXPR_CAST);
+	expr->cast.x = x;
+	expr->cast.type = type;
+	return expr;
 }
 AstExpr* ast_expr_index(FileLoc loc, AstExpr* x, AstExpr* arg) {
-    AstExpr* expr = ast_expr_new(loc, AST_EXPR_INDEX);
-    expr->index.x = x;
-    expr->index.arg = arg;
-    return expr;
+	AstExpr* expr = ast_expr_new(loc, AST_EXPR_INDEX);
+	expr->index.x = x;
+	expr->index.arg = arg;
+	return expr;
 }
 AstExpr* ast_expr_tuple(FileLoc loc, AstExprList args) {
-    AstExpr* expr = ast_expr_new(loc, AST_EXPR_TUPLE);
-    expr->tuple.args = args;
-    return expr;
+	AstExpr* expr = ast_expr_new(loc, AST_EXPR_TUPLE);
+	expr->tuple.args = args;
+	return expr;
 }
 AstExpr* ast_expr_array(FileLoc loc, AstExpr* init, u32 len) {
-    AstExpr* expr = ast_expr_new(loc, AST_EXPR_ARRAY);
-    expr->array.init = init;
-    expr->array.len = len;
-    return expr;
+	AstExpr* expr = ast_expr_new(loc, AST_EXPR_ARRAY);
+	expr->array.init = init;
+	expr->array.len = len;
+	return expr;
 }
 AstExpr* ast_expr_array_list(FileLoc loc, AstExprList args) {
-    AstExpr* expr = ast_expr_new(loc, AST_EXPR_ARRAY_LIST);
-    expr->array_list.args = args;
-    return expr;
+	AstExpr* expr = ast_expr_new(loc, AST_EXPR_ARRAY_LIST);
+	expr->array_list.args = args;
+	return expr;
 }
 AstExpr* ast_expr_init(FileLoc loc, AstExpr* x, AstArgList fields) {
-    AstExpr* expr = ast_expr_new(loc, AST_EXPR_INIT);
-    expr->init.x = x;
-    expr->init.fields = fields;
-    return expr;
+	AstExpr* expr = ast_expr_new(loc, AST_EXPR_INIT);
+	expr->init.x = x;
+	expr->init.fields = fields;
+	return expr;
 }
 
 AstStmt* ast_stmt_new(FileLoc loc, AstStmtKind kind) {
-    AstStmt* stmt = ast_alloc(sizeof(AstStmt));
-    stmt->loc = loc;
-    stmt->kind = kind;
-    return stmt;
+	AstStmt* stmt = ast_alloc(sizeof(AstStmt));
+	stmt->loc = loc;
+	stmt->kind = kind;
+	return stmt;
 }
 AstStmt* ast_stmt_decl(FileLoc loc, AstDecl* decl) {
-    AstStmt* stmt = ast_stmt_new(loc, AST_STMT_DECL);
-    stmt->decl = decl;
-    return stmt;
+	AstStmt* stmt = ast_stmt_new(loc, AST_STMT_DECL);
+	stmt->decl = decl;
+	return stmt;
 }
 AstStmt* ast_stmt_expr(FileLoc loc, AstExpr* expr) {
-    AstStmt* stmt = ast_stmt_new(loc, AST_STMT_EXPR);
-    stmt->expr = expr;
-    return stmt;
+	AstStmt* stmt = ast_stmt_new(loc, AST_STMT_EXPR);
+	stmt->expr = expr;
+	return stmt;
 }
 AstStmt* ast_stmt_if(FileLoc loc, AstExpr* cond, AstStmtList body, AstStmt* els) {
-    AstStmt* stmt = ast_stmt_new(loc, AST_STMT_IF);
-    stmt->if_.cond = cond;
-    stmt->if_.body = body;
-    stmt->if_.els = els;
-    return stmt;
+	AstStmt* stmt = ast_stmt_new(loc, AST_STMT_IF);
+	stmt->if_.cond = cond;
+	stmt->if_.body = body;
+	stmt->if_.els = els;
+	return stmt;
 }
 AstStmt* ast_stmt_for(FileLoc loc, AstExpr* cond, AstStmtList body) {
-    AstStmt* stmt = ast_stmt_new(loc, AST_STMT_FOR);
-    stmt->for_.cond = cond;
-    stmt->for_.body = body;
-    return stmt;
+	AstStmt* stmt = ast_stmt_new(loc, AST_STMT_FOR);
+	stmt->for_.cond = cond;
+	stmt->for_.body = body;
+	return stmt;
 }
 AstStmt* ast_stmt_return(FileLoc loc, AstExpr* return_) {
-    AstStmt* stmt = ast_stmt_new(loc, AST_STMT_RETURN);
-    stmt->return_ = return_;
-    return stmt;
+	AstStmt* stmt = ast_stmt_new(loc, AST_STMT_RETURN);
+	stmt->return_ = return_;
+	return stmt;
 }
 AstStmt* ast_stmt_assign(FileLoc loc, AstExpr* x, TokenKind op, AstExpr* y) {
-    AstStmt* stmt = ast_stmt_new(loc, AST_STMT_ASSIGN);    
-    stmt->assign.x = x;
-    stmt->assign.op = op;
-    stmt->assign.y = y;
-    return stmt;
+	AstStmt* stmt = ast_stmt_new(loc, AST_STMT_ASSIGN);    
+	stmt->assign.x = x;
+	stmt->assign.op = op;
+	stmt->assign.y = y;
+	return stmt;
 }
 AstStmt* ast_stmt_block(FileLoc loc, AstStmtList body) {
-    AstStmt* stmt = ast_stmt_new(loc, AST_STMT_BLOCK);
-    stmt->block.body = body;
-    return stmt;
+	AstStmt* stmt = ast_stmt_new(loc, AST_STMT_BLOCK);
+	stmt->block.body = body;
+	return stmt;
 }
 
 AstType* ast_type_new(FileLoc loc, AstTypeKind kind) {
-    AstType* type = ast_alloc(sizeof(AstType));
-    type->loc = loc;
-    type->kind = kind;
-    return type;
+	AstType* type = ast_alloc(sizeof(AstType));
+	type->loc = loc;
+	type->kind = kind;
+	return type;
 }
 AstType* ast_type_name(FileLoc loc, StrIntern name) {
-    AstType* type = ast_type_new(loc, AST_TYPE_NAME);
-    type->name = name;
-    return type;
+	AstType* type = ast_type_new(loc, AST_TYPE_NAME);
+	type->name = name;
+	return type;
 }
 AstType* ast_type_ptr(FileLoc loc, AstType* ptr) {
-    AstType* type = ast_type_new(loc, AST_TYPE_PTR);
-    type->ptr = ptr;
-    return type;
+	AstType* type = ast_type_new(loc, AST_TYPE_PTR);
+	type->ptr = ptr;
+	return type;
 }
 AstType* ast_type_array(FileLoc loc, u32 size, AstType* type_) {
-    AstType* type = ast_type_new(loc, AST_TYPE_ARRAY);
-    type->array.size = size;
-    type->array.type = type_;
-    return type;
+	AstType* type = ast_type_new(loc, AST_TYPE_ARRAY);
+	type->array.size = size;
+	type->array.type = type_;
+	return type;
 }
 AstType* ast_type_fn(FileLoc loc, AstType* ret, AstTypeList args) {
-    AstType* type = ast_type_new(loc, AST_TYPE_FN);
-    type->fn.ret = ret;
-    type->fn.args = args;
-    return type;
+	AstType* type = ast_type_new(loc, AST_TYPE_FN);
+	type->fn.ret = ret;
+	type->fn.args = args;
+	return type;
 }
 AstType* ast_type_slice(FileLoc loc, AstType* type_) {
-    AstType* type = ast_type_new(loc, AST_TYPE_SLICE);
-    type->slice.type = type_;
-    return type;
+	AstType* type = ast_type_new(loc, AST_TYPE_SLICE);
+	type->slice.type = type_;
+	return type;
 }
 AstType* ast_type_tuple(FileLoc loc, AstTypeList args) {
-    AstType* type = ast_type_new(loc, AST_TYPE_TUPLE);
-    type->tuple.args = args;
-    return type;
+	AstType* type = ast_type_new(loc, AST_TYPE_TUPLE);
+	type->tuple.args = args;
+	return type;
 }
 AstFile* ast_file(const char* path, AstDeclList decls) {
-    AstFile* file = ast_alloc(sizeof(AstFile));
-    file->path = path;
-    file->decls = decls;
-    return file;
+	AstFile* file = ast_alloc(sizeof(AstFile));
+	file->path = path;
+	file->decls = decls;
+	return file;
 }
