@@ -12,6 +12,7 @@
 
 #include "lib/lib.c"
 #include "syntax/syntax.c"
+#include "resolver/resolver.c"
 #include "print/print.c"
 
 void main_compile_file(const char* name, StrRange contents) {

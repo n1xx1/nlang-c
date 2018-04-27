@@ -10,7 +10,7 @@
 typedef struct MemoryPool {
 	void* begin;
 	void* ptr;
-    void* end;
+	void* end;
 } MemoryPool;
 
 #define MEMORY_POOL_ALIGNMENT 8

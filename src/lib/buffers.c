@@ -6,10 +6,11 @@
 // Usage:
 //   i32* vec = NULL;
 //   buf_push(vec, 10);
-//   buf_puuh(vec, 20);
+//   buf_push(vec, 20);
 //   buf_push(vec, 30);
 //   i32 a1 = vec[1]; // v == 20
 //   isize size = buf_len(vec); // size == 3
+//   buf_free(vec);
 
 #define buf__raw(b) ((isize*)(b) - 2)
 #define buf__cap(b) buf__raw(b)[0]
