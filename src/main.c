@@ -14,11 +14,12 @@
 #include "syntax/syntax.c"
 #include "print/print.c"
 
-void main_compile_file(const char* name, StrRange file) {
+void main_compile_file(const char* name, StrRange contents) {
 	Parser p;
-	parser_init(&p, name, file);
+	parser_init(&p, name, contents);
 
-	parser_parse_file(&p);
+	AstFile* file = parser_parse_file(&p);
+	print_ast_file(file);
 }
 
 int main(int argc, const char* argv[]) {
