@@ -1,10 +1,16 @@
 // Copyright 2018 Simone Miraglia. See the LICENSE
 // file at the top-level directory of this distribution
 
+// Memory pool implementation.
+// allocations are 8 byte aligned; MemoryPool::ptr is a 
+// pointer to the data but it actually follow a pointer 
+// to the previous block that is used for later clearing 
+// the pool
+
 typedef struct MemoryPool {
+	void* begin;
 	void* ptr;
     void* end;
-    void** blocks;
 } MemoryPool;
 
 #define MEMORY_POOL_ALIGNMENT 8
@@ -12,9 +18,11 @@ typedef struct MemoryPool {
 
 void mpool_grow(MemoryPool* p, isize min_size) {
 	isize size = ALIGN_UP(MAX(MEMORY_POOL_BLOCK_SIZE, min_size), MEMORY_POOL_ALIGNMENT);
-	p->ptr = xmalloc(size);
-	p->end = (char*)p->ptr + size;
-	buf_push(p->blocks, p->ptr);
+	void* new_ptr = xmalloc(sizeof(void*) + size);
+	p->end = (char*)new_ptr + sizeof(void*) + size;
+	*(void**)new_ptr = p->begin;
+	p->begin = (void**)new_ptr + 1;
+	p->ptr = p->begin;
 }
 
 void* mpool_alloc(MemoryPool* p, isize size) {
@@ -27,8 +35,10 @@ void* mpool_alloc(MemoryPool* p, isize size) {
 }
 
 void mpool_free(MemoryPool* p) {
-	for(int i = 0; i < buf_len(p->blocks); i++) {
-		free(p->blocks[i]);
+	void* next = p->begin;
+	while(next) {
+		void* tmp = (char*)next - sizeof(void*);
+		next = *(void**)tmp;
+		free(tmp);
 	}
-	buf_free(p->blocks);
 }

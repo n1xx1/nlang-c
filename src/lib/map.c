@@ -2,11 +2,14 @@
 // file at the top-level directory of this distribution
 
 // Hash map implementation with linear probing
+// Based on https://github.com/pervognsen/bitwise/blob/master/ion/common.c
+// and https://github.com/rxi/map.
 // Usage: 
 //   typedef map_type(i32) Map_i32;
 //   Map_i32 m = {0};
 //   map_set(&m, "key", 10);
 //   i32 v = map_get(&m, "key"); // v == 10
+//   map_free(&m);
 
 typedef struct MapBaseKey {
 	u64 hash;

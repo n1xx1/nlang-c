@@ -1,6 +1,16 @@
 // Copyright 2018 Simone Miraglia. See the LICENSE
 // file at the top-level directory of this distribution
 
+// Stretchy Buffers implementation, based on 
+// https://github.com/nothings/stb/blob/master/stretchy_buffer.h
+// Usage:
+//   i32* vec = NULL;
+//   buf_push(vec, 10);
+//   buf_puuh(vec, 20);
+//   buf_push(vec, 30);
+//   i32 a1 = vec[1]; // v == 20
+//   isize size = buf_len(vec); // size == 3
+
 #define buf__raw(b) ((isize*)(b) - 2)
 #define buf__cap(b) buf__raw(b)[0]
 #define buf__len(b) buf__raw(b)[1]
