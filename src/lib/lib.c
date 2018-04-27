@@ -5,6 +5,7 @@
 #include "assert.c"
 #include "memory.c"
 #include "buffers.c"
+#include "pool.c"
 #include "strings.c"
 
 void fatal(const char* fmt, ...) {

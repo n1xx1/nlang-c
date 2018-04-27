@@ -12,6 +12,7 @@ typedef struct FileLoc {
 	i32 col;
 } FileLoc;
 
+typedef const char* StrIntern;
 
 StrRange string_range_c(const char* s) {
 	return (StrRange){ s, strlen(s) };
