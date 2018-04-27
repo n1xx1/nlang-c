@@ -12,7 +12,8 @@
 #include <stdlib.h>
 
 #include "lib/lib.c"
-#include "parser/parser.c"
+#include "syntax/syntax.c"
+#include "print/print.c"
 
 void main_compile_file(const char* name, StrRange file) {
 	Lexer l;
