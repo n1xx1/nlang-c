@@ -9,6 +9,11 @@
 //   Map_str_i32 m = {0};
 //   map_set(&m, "key", 10);
 //   i32 v = map_get(&m, "key"); // v == 10
+//   for(MapIterator it = map_begin(&m); it != map_end(&m); map_next(&m, &it)) {
+//      const char* key = map_iter_key(&m, &it);
+//      i32* value = map_iter_value(&m, &it);
+//      printf("%s = %d\n", key, *value);
+//   }
 //   map_free(&m);
 
 typedef struct MapBaseKey {
@@ -22,6 +27,8 @@ typedef struct MapBase {
 	isize len;
 	isize cap;
 } MapBase;
+
+typedef isize MapIterator;
 
 u64 map_hash_str(const char *str) {
 	u64 hash = 5381;
@@ -105,7 +112,22 @@ void name ## _remove_(MapBase* map, K key) { \
 		} \
 		i++; \
 	} \
+} \
+void name ## _next_(MapBase* map, MapIterator* it) { \
+	isize i = (isize)*it; \
+	while(i < map->cap) { \
+		i++; \
+		MapBaseKey* bkey = (MapBaseKey*)((char*)map->keys + (sizeof(MapBaseKey) + sizeof(K)) * i); \
+		if(bkey->hash) break; \
+	} \
+	*it = i; \
+} \
+MapIterator name ## _begin_(MapBase* map) { \
+	MapIterator it = -1; \
+	name ## _next_(map, &it); \
+	return it; \
 }
+
 #define MAP_COMPARE_INTEGER(a, b) ((a) == (b) ? 0 : 1)
 
 
@@ -117,8 +139,13 @@ MAP_FUNCTIONS(map_u64, u64, map_hash_u64, MAP_COMPARE_INTEGER)
 	const char*: map_str_ ## fn ## _, \
 	u64: map_u64_ ## fn ## _)
 
-#define map_type(K, V) struct { MapBase base; K* kref; V* ref; V tmp; }
-#define map_get(m, key)  ( (m)->ref = GENERIC_MAP_FUNC(*(m)->kref, get)(&(m)->base, key, sizeof((m)->tmp)) )
-#define map_set(m, key, value)  ( (m)->tmp = (value), GENERIC_MAP_FUNC(*(m)->kref, set)(&(m)->base, key, &(m)->tmp, sizeof((m)->tmp)) )
+#define map_type(K, V) struct { MapBase base; K* kref; V* vref; V vtmp; }
+#define map_get(m, key) ( (m)->vref = GENERIC_MAP_FUNC(*(m)->kref, get)(&(m)->base, key, sizeof((m)->vtmp)) )
+#define map_set(m, key, value) ( (m)->vtmp = (value), GENERIC_MAP_FUNC(*(m)->kref, set)(&(m)->base, key, &(m)->vtmp, sizeof((m)->vtmp)) )
 #define map_remove(m, key) ( GENERIC_MAP_FUNC(*(m)->kref, remove)(&(m)->base, key) )
+#define map_begin(m) ( GENERIC_MAP_FUNC(*(m)->kref, begin)(&(m)->base) )
+#define map_end(m) ( (MapIterator){ (m)->base.cap } )
+#define map_next(m, it) ( GENERIC_MAP_FUNC(*(m)->kref, next)(&(m)->base, it) )
+#define map_iter_key(m, it) ( *(void**)((MapBaseKey*)((char*)(m)->base.keys + (sizeof(MapBaseKey) + sizeof(*(m)->kref)) * *it))->key )
+#define map_iter_value(m, it) ( (void*)((char*)(m)->base.values + *it * sizeof((m)->vtmp)) )
 #define map_free(m)  map_free_(&(m)->base)
