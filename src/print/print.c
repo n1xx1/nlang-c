@@ -10,4 +10,3 @@ PRINT_STRING_FUNC1(ast_expr, AstExpr*)
 PRINT_STRING_FUNC1(ast_stmt_list, AstStmtList)
 PRINT_STRING_FUNC1(ast_stmt, AstStmt*)
 PRINT_STRING_FUNC1(ast_file, AstFile*)
-

@@ -19,9 +19,12 @@ const char* string_##name args1 {\
     p_printf = p_printf_to_buffer;\
     p_printf_buffer = NULL;\
     print_##name args2;\
-    char* ret = memdup(p_printf_buffer, buf_len(p_printf_buffer) + 1);\
-    ret[buf_len(p_printf_buffer)] = '\0';\
-    buf_free(p_printf_buffer);\
+    char* ret = "";\
+    if(p_printf_buffer) {\
+        ret = memdup(p_printf_buffer, buf_len(p_printf_buffer) + 1);\
+        ret[buf_len(p_printf_buffer)] = '\0';\
+        buf_free(p_printf_buffer);\
+    }\
     p_printf = old_printf;\
     return ret;\
 }
