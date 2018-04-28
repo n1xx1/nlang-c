@@ -3,93 +3,122 @@
 
 // Hash map implementation with linear probing
 // Based on https://github.com/pervognsen/bitwise/blob/master/ion/common.c
-// and https://github.com/rxi/map.
+// and https://github.com/rxi/map, supports different key types.
 // Usage: 
-//   typedef map_type(i32) Map_i32;
-//   Map_i32 m = {0};
+//   typedef map_type(const char*, i32) Map_str_i32;
+//   Map_str_i32 m = {0};
 //   map_set(&m, "key", 10);
 //   i32 v = map_get(&m, "key"); // v == 10
 //   map_free(&m);
 
 typedef struct MapBaseKey {
 	u64 hash;
-	const char* key;
+	char key[0];
 } MapBaseKey;
 
 typedef struct MapBase {
-	MapBaseKey* keys;
+	void* keys;
 	void* values;
 	isize len;
 	isize cap;
 } MapBase;
 
-#define map_type(type) struct { MapBase base; type* ref; type tmp; }
-
-static unsigned map_hash_(const char *str) {
+u64 map_hash_str(const char *str) {
 	u64 hash = 5381;
 	while(*str) hash = ((hash << 5) + hash) ^ *str++;
 	return hash;
 }
+u64 map_hash_u64(u64 x) {
+	x *= 0xff51afd7ed558ccd;
+    x ^= x >> 32;
+    return x;
+}
+
 void map_free_(MapBase* map) {
-    free(map->keys);
-    free(map->values);
+	free(map->keys);
+	free(map->values);
 	map->len = 0;
 	map->cap = 0;
 }
-void* map_get_(MapBase* map, const char* key, int elem_size) {
-	u64 hash = map_hash_(key);
-	isize i = (isize)hash;
-	while(true) {
-		i &= map->cap - 1;
-		if(map->keys[i].hash == hash && strcmp(key, map->keys[i].key) == 0) {
-			return ((char*)map->values) + i * elem_size;
-		} else if(!map->keys[i].hash) {
-			break;
-		}
-		i++;
-	}
-	return 0;
-}
 
-void map_set_(MapBase* map, const char* key, void* value, int elem_size);
-
-void map_grow_(MapBase* map, isize new_cap, isize elem_size) {
-	new_cap = MAX(new_cap, 16);
-    MapBase new_map = {
-        .keys = xcalloc(new_cap, sizeof(MapBaseKey)),
-        .values = xmalloc(new_cap * elem_size),
-        .cap = new_cap,
-    };
-    for(isize i = 0; i < map->cap; i++) {
-        if(map->keys[i].hash) {
-			map_set_(&new_map, map->keys[i].key, (char*)map->values + i * elem_size, elem_size);
-        }
-    }
-	map_free_(map);
-    *map = new_map;
+#define MAP_FUNCTIONS(name, K, hashfn, cmpfn) \
+void* name ## _get_(MapBase* map, K key, int vsize) { \
+	u64 hash = hashfn(key); \
+	isize i = (isize)hash; \
+	while(true) { \
+		i &= map->cap - 1; \
+		MapBaseKey* bkey = (MapBaseKey*)((char*)map->keys + (sizeof(MapBaseKey) + sizeof(K)) * i); \
+		if(bkey->hash == hash && cmpfn(key, *(K*)bkey->key) == 0) { \
+			return ((char*)map->values) + i * vsize; \
+		} else if(!bkey->hash) { \
+			break; \
+		} \
+		i++; \
+	} \
+	return 0; \
+} \
+void name ## _set_(MapBase* map, K key, void* value, int vsize); \
+void name ## _grow_(MapBase* map, isize new_cap, isize vsize) { \
+	new_cap = MAX(new_cap, 16); \
+	MapBase new_map = { xcalloc(new_cap, sizeof(MapBaseKey) + sizeof(K)), xmalloc(new_cap * vsize), 0, new_cap}; \
+	for(isize i = 0; i < map->cap; i++) { \
+		MapBaseKey* bkey = (MapBaseKey*)((char*)map->keys + (sizeof(MapBaseKey) + sizeof(K)) * i); \
+		if(bkey->hash) { \
+			name ## _set_(&new_map, *(K*)bkey->key, (char*)map->values + i * vsize, vsize); \
+		} \
+	} \
+	map_free_(map); \
+	*map = new_map; \
+} \
+void name ## _set_(MapBase* map, K key, void* value, int vsize) { \
+	if(2 * map->len >= map->cap) { \
+		name ## _grow_(map, 2 * map->cap, vsize); \
+	} \
+	u64 hash = hashfn(key); \
+	isize i = (isize)hash; \
+	while(true) { \
+		i &= map->cap - 1; \
+		MapBaseKey* bkey = (MapBaseKey*)((char*)map->keys + (sizeof(MapBaseKey) + sizeof(K)) * i); \
+		if(!bkey->hash) { \
+			map->len++; \
+			bkey->hash = hash; \
+			*(K*)bkey->key = key; \
+			memcpy((char*)map->values + i * vsize, value, vsize); \
+			return; \
+		} else if(bkey->hash == hash && cmpfn(key, *(K*)bkey->key) == 0) { \
+			memcpy((char*)map->values + i * vsize, value, vsize); \
+			return; \
+		} \
+		i++; \
+	} \
+} \
+void name ## _remove_(MapBase* map, K key) { \
+	u64 hash = hashfn(key); \
+	isize i = (isize)hash; \
+	while(true) { \
+		i &= map->cap - 1; \
+		MapBaseKey* bkey = (MapBaseKey*)((char*)map->keys + (sizeof(MapBaseKey) + sizeof(K)) * i); \
+		if(bkey->hash == hash && cmpfn(key, *(K*)bkey->key) == 0) { \
+			bkey->hash = 0; \
+		} else if(!bkey->hash) { \
+			return; \
+		} \
+		i++; \
+	} \
 }
-void map_set_(MapBase* map, const char* key, void* value, int elem_size) {
-	if(2*map->len >= map->cap) {
-		map_grow_(map, 2*map->cap, elem_size);
-	}
-	u64 hash = map_hash_(key);
-	isize i = (isize)hash;
-	while(true) {
-		i &= map->cap - 1;
-		if(!map->keys[i].hash) {
-			map->len++;
-			map->keys[i].hash = hash;
-			map->keys[i].key = key;
-			memcpy((char*)map->values + i * elem_size, value, elem_size);
-			return;
-		} else if(map->keys[i].hash == hash && strcmp(key, map->keys[i].key) == 0) {
-			memcpy((char*)map->values + i * elem_size, value, elem_size);
-			return;
-		}
-		i++;
-	}
-}
+#define MAP_COMPARE_INTEGER(a, b) ((a) == (b) ? 0 : 1)
 
-#define map_get(m, key)  ( (m)->ref = map_get_(&(m)->base, key, sizeof((m)->tmp)) )
-#define map_set(m, key, value)  ( (m)->tmp = (value), map_set_(&(m)->base, key, &(m)->tmp, sizeof((m)->tmp)) )
+
+MAP_FUNCTIONS(map_str, const char*, map_hash_str, strcmp)
+MAP_FUNCTIONS(map_u64, u64, map_hash_u64, MAP_COMPARE_INTEGER)
+
+
+#define GENERIC_MAP_FUNC(typ, fn) _Generic((typ), \
+	const char*: map_str_ ## fn ## _, \
+	u64: map_u64_ ## fn ## _)
+
+#define map_type(K, V) struct { MapBase base; K* kref; V* ref; V tmp; }
+#define map_get(m, key)  ( (m)->ref = GENERIC_MAP_FUNC(*(m)->kref, get)(&(m)->base, key, sizeof((m)->tmp)) )
+#define map_set(m, key, value)  ( (m)->tmp = (value), GENERIC_MAP_FUNC(*(m)->kref, set)(&(m)->base, key, &(m)->tmp, sizeof((m)->tmp)) )
+#define map_remove(m, key) ( GENERIC_MAP_FUNC(*(m)->kref, remove)(&(m)->base, key) )
 #define map_free(m)  map_free_(&(m)->base)
