@@ -14,7 +14,10 @@ StrRange read_file(const char* name) {
 	char* contents_str = NULL;
 	isize contents_len = 0;
 	FILE* file;
-	fopen_s(&file, name, "r");
+	if(fopen_s(&file, name, "r") != 0) {
+		fatal("cannot open input file \"%s\"", name);
+		return string_range_c("");
+	}
 	isize nread;
 	char buf[256];
 	while((nread = fread(buf, 1, sizeof(buf), file)) > 0) {
@@ -23,19 +26,22 @@ StrRange read_file(const char* name) {
 		contents_len += nread;
 	}
 	fclose(file);
-	return (StrRange){ contents_str, contents_len };
+	return string_range_len(contents_str, contents_len);
 }
 
 void write_file(const char* name, StrRange out) {
 	FILE* file;
-	fopen_s(&file, name, "w");
+	if(fopen_s(&file, name, "w") != 0) {
+		fatal("cannot open output file \"%s\"", name);
+		return;
+	}
 	isize off = 0;
 	isize nwrote = 0;
 	while(off < out.l) {
 		nwrote = fwrite(out.s + off, 1, MIN(out.l - off, 1024), file);
 		off += nwrote;
 		if(nwrote == 0)
-			return;
+			break;
 	}
 	fclose(file);
 }
