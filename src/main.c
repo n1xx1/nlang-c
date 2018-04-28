@@ -23,6 +23,10 @@ void main_compile_file(const char* name, StrRange contents) {
 
 	AstFile* file = parser_parse_file(&p);
 	puts(string_ast_file(file));
+
+	Package pkg;
+	package_init(&pkg, "<source>");
+	package_add_file(&pkg, file);
 }
 
 int main(int argc, const char* argv[]) {
