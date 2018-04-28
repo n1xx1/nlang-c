@@ -30,8 +30,8 @@ u64 map_hash_str(const char *str) {
 }
 u64 map_hash_u64(u64 x) {
 	x *= 0xff51afd7ed558ccd;
-    x ^= x >> 32;
-    return x;
+	x ^= x >> 32;
+	return x;
 }
 
 void map_free_(MapBase* map) {
