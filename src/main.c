@@ -11,9 +11,9 @@
 #include <stdlib.h>
 
 #include "lib/lib.c"
+#include "print/print.c"
 #include "syntax/syntax.c"
 #include "resolver/resolver.c"
-#include "print/print.c"
 
 typedef map_type(const char*, i32) MyMap;
 

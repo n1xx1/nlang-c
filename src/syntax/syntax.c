@@ -5,3 +5,4 @@
 #include "ast.c"
 #include "lexer.c"
 #include "parser.c"
+#include "print.c"
