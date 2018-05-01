@@ -34,5 +34,10 @@ void print_type_fn(Type* type) {
     print_type(type->fn.ret);
 }
 
+void print_symbol(Symbol* sym) {
+    // TODO: implement
+}
+
 PRINT_STRING_FUNC1(type, Type*)
 PRINT_STRING_FUNC1(type_fn, Type*)
+PRINT_STRING_FUNC1(symbol, Symbol*)

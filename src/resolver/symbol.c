@@ -18,11 +18,16 @@ typedef enum SymbolStatus {
 
 struct Symbol {
 	SymbolKind kind;
-	SymbolStatus status;
+	SymbolStatus state;
 	StrIntern name;
 	Type* type;
 	AstDecl* decl;
 };
+
+typedef struct SymbolOrder {
+	StrIntern name;
+	bool is_decl;
+} SymbolOrder;
 
 Symbol* symbol_new(SymbolKind kind, StrIntern name, AstDecl* decl) {
 	Symbol* sym = xcalloc(1, sizeof(Symbol));
